@@ -1,0 +1,52 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_code:
+    name: Test Code App
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+          node-version: 18
+          
+    - name: Add Eslint
+      working-directory: ./app
+      run: npm install -g eslint
+      
+    - name: Configure Eslint
+      working-directory: ./app
+      run: npm init @eslint/config
+      
+    - name: Code Linting
+      working-directory: ./app
+      run: npm run lint
+
+  ci:
+      name: Build Container
+      runs-on: ubuntu-latest
+      needs: [test_code]
+      steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push to Docker Hub
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: eduardogobetti/devops-code-challenge:latest, eduardogobetti/devops-code-challenge:v${{github.run_number}}      
