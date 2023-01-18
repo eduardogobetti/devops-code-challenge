@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-producao
+  labels:
+    name: app-producao
+    type: api
+spec:
+  template:
+    metadata:
+      name: app-producao
+      labels:
+        app: app-producao
+        type: api
+    spec:
+      containers:
+      - name: app-producao
+        image: eduardogobetti/devops-code-challenge
+  replicas: 4
+  selector:
+    matchLabels:
+      type: api
